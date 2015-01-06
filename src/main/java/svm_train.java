@@ -137,7 +137,7 @@ class svm_train {
 		error_msg = svm.svm_check_parameter(prob,param);
 
 		System.out.print(
-                "------ LIBSVM normal execution mode ------\n"
+                "========== LIBSVM normal execution mode ==========\n\n"
                );
 		if(error_msg != null)
 		{
@@ -164,8 +164,8 @@ class svm_train {
 	private void run_mr(String argv[]) throws IOException, IllegalArgumentException, ClassNotFoundException, InterruptedException
 	{
 		System.out.print(
-                "------ MR-LIBSVM cluster execution mode ------\n"
-               +"Starting MapReduce jobs...\n"
+                "========== MR-LIBSVM cluster execution mode ==========\n\n"
+               +"Starting MapReduce jobs...\n\n"
                );
 		parse_command_line(argv);
 		generate_and_run_jobs();
@@ -228,7 +228,8 @@ class svm_train {
         
         System.out.print("\nPartitioning training data into "
                 +subset_count
-                +" subsets for cascade...\n");
+                +" subsets for cascade...\n\n"
+		+"----- MapReduce Job Info -----\n");
         prepartition_jobs[0].waitForCompletion(false);
         prepartition_confs[1].setInt("SUBSET_COUNT",(int)subset_count);
         prepartition_confs[1].setInt("TOTAL_RECORD_COUNT",
@@ -250,6 +251,8 @@ class svm_train {
         FileInputFormat.addInputPath(prepartition_jobs[1], new Path(output_hdfs_path+"/tmp"));
         FileOutputFormat.setOutputPath(prepartition_jobs[1], new Path(output_hdfs_path+"/layer-input-subsets/layer-1"));
         prepartition_jobs[1].waitForCompletion(false);
+
+	System.out.print("------------------------------\n\n");
         
         // Preparing cascade jobs...
 
@@ -277,15 +280,19 @@ class svm_train {
                 }
         }
 
-        System.out.print("\nStarting Cascade MapReduce SVM training framework...\n");
+        System.out.print("\nStarting Cascade MapReduce SVM training framework...\n\n");
         
         for(int i=0; i<cascade_job_count; i++) {
-            System.out.println("Beginning job for layer "+(i+1)+"...\n");
+            System.out.println("Beginning job for layer "+(i+1)+"...\n\n");
             if(i != cascade_job_count-1){
+			System.out.print("----- MapReduce Job Info -----\n");
                     cascade_jobs[i].waitForCompletion(false);
-                    System.out.println("Layer "+(i+1)+" has successfully completed!\n");
+			System.out.print("------------------------------\n\n");
+                    System.out.println("Layer "+(i+1)+" has successfully completed!\n\n");
             } else {
+			System.out.print("----- MapReduce Job Info -----\n");
                     int exit_stat = (cascade_jobs[i].waitForCompletion(false)) ? 0 : 1;
+			System.out.print("------------------------------\n\n");
                     System.out.println("Layer "+(i+1)+" has succesfully completed!\n");
                     System.exit(exit_stat);
             }
