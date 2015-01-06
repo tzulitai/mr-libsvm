@@ -24,6 +24,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.fs.FileSystem;
 
 import com.google.gson.Gson;
 
@@ -168,14 +169,22 @@ class svm_train {
                +"Starting MapReduce jobs...\n\n"
                );
 		parse_command_line(argv);
-		generate_and_run_jobs();
+		
+		int exit_stat = generate_and_run_jobs();
+		
+		Configuration conf = new Configuration();
+		conf.set("fs.default.name", "hdfs://"+hadoop_address+":9000");
+		FileSystem hdfsFileSystem = FileSystem.get(conf);
+		hdfsFileSystem.copyToLocalFile(false, new Path(output_hdfs_path+"/_model_file.model"), new Path(model_file_name), true);
+		
+		System.exit(exit_stat);
 	}
 	
 	/*
 	 * MR-LIBSVM configure prepartition/cascade jobs and run them
 	 */
 	
-	private void generate_and_run_jobs() throws IllegalArgumentException, IOException, ClassNotFoundException, InterruptedException
+	private int generate_and_run_jobs() throws IllegalArgumentException, IOException, ClassNotFoundException, InterruptedException
 	{
 		Configuration[] prepartition_confs = new Configuration[prepartition_job_count];
         for(int i=0; i<prepartition_job_count; i++){
@@ -281,6 +290,7 @@ class svm_train {
         }
 
         System.out.print("\nStarting Cascade MapReduce SVM training framework...\n\n");
+        int exit_stat = 0;
         
         for(int i=0; i<cascade_job_count; i++) {
             System.out.println("Beginning job for layer "+(i+1)+"...\n\n");
@@ -291,12 +301,13 @@ class svm_train {
                     System.out.println("Layer "+(i+1)+" has successfully completed!\n\n");
             } else {
 			System.out.print("----- MapReduce Job Info -----\n");
-                    int exit_stat = (cascade_jobs[i].waitForCompletion(false)) ? 0 : 1;
+                    exit_stat = (cascade_jobs[i].waitForCompletion(false)) ? 0 : 1;
 			System.out.print("------------------------------\n\n");
                     System.out.println("Layer "+(i+1)+" has succesfully completed!\n");
-                    System.exit(exit_stat);
             }
         }
+        
+        return exit_stat;
 	}
 
 	public static void main(String argv[]) throws IOException, IllegalArgumentException, ClassNotFoundException, InterruptedException
