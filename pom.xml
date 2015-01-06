@@ -60,6 +60,7 @@
   </dependencies>
   
   <build>
+  <finalName>mr-libsvm</finalName>
   <plugins>
 	<plugin>
 		<artifactId>maven-compiler-plugin</artifactId>
