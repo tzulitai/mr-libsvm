@@ -11,8 +11,9 @@ MR-LIBSVM have the following additional options:
 
 ## API format:
 
+Train:
 
-
+		java -classpath target/mr-libsvm.jar svm_train -mr (hadoop_address) -cc (par_count) data_file
 
 
 Version Info
