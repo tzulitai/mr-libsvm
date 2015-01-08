@@ -19,11 +19,15 @@ Version Info
   
 Installation and Building
 ----------------
+A prebuilt jar is provided at `prebuilt/mr-libsvm.jar`.
+
+Otherwise, you can re-compile by following the steps below:
+
 	git clone https://github.com/tzulitai/mr-libsvm.git	// download code from Github
 	cd mr-libsvm						// move to project root directory
 	mvn clean install					// build with maven
 
-The compiled jar file is at *target/mr-libsvm.jar*.
+The compiled jar file will be at `target/mr-libsvm.jar`.
 
 Usage
 ----------------
@@ -38,6 +42,17 @@ Usage
 3. Predict with model (the trained model will be downloaded to local filesystem, so this part is identical to LIBSVM):
 
 		java -classpath target/mr-libsvm.jar svm_predict test_file data_file.model output_path 
+
+
+Contacts
+----------------
+**Ting-Yun Tseng**, *National Cheng Kung University, Taiwan*
+
+Email: `tseng0211@gmail.com`
+
+**Tzu-Li Tai**, *National Cheng Kung University, Taiwan*
+
+Email: `tzulitai@ee.ncku.edu.tw`
 
 
 References
